@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "starry-diagram-skill"
+version = "0.6.0"
+description = "A machine-verified technical diagram skill for coding agents."
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "starry-diagram contributors" }
+]
+dependencies = [
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
