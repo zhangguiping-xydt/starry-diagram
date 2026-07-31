@@ -15,7 +15,8 @@ Run every gate before handoff. A report written by the agent is not proof; gener
 9. `validate_preview_review.py preview.png preview_review.yaml`
 10. If `raster_delivery` is declared, `render_delivery_raster.py diagram_lock.yaml visual.svg delivery.png --report delivery_render_report.json`.
 11. `build_check_report.py <diagram-directory>`
-12. `build_embed_blocks.py <pack-root>` only after every generated diagram passes.
+12. `build_pack_report.py <pack-root>` only after every generated diagram passes.
+13. Optionally run `build_embed_blocks.py <pack-root>` when a publication adapter is requested.
 
 ## Lock checks
 
@@ -88,6 +89,14 @@ Run every gate before handoff. A report written by the agent is not proof; gener
 - `preview_review.yaml` matches the current PNG and visual SVG hashes and every technical visual review check passes.
 - When `raster_delivery` is declared, the font stack resolves to a declared non-generic family, `delivery.png` dimensions equal the logical target dimensions multiplied by `pixel_ratio`, and `delivery_render_report.json` binds it to the current `visual.svg`; it is not used as the target-size review artifact.
 
+## Generalization checks
+
+- Reusable profiles, layouts, notation rules, renderers, and validators are publishing-platform independent.
+- A reusable fix is stated as a technical invariant over diagram type, notation role, topology, layout, geometry, typography, or generic delivery constraints.
+- Regression fixtures use domain-neutral labels and ids and prove the invariant without depending on one generated pack.
+- No reusable code or template matches a project name, page title, business field, semantic item id, known SVG path string, or fixed coordinates from one output.
+- Case-specific repairs remain in that pack's lock, source, or visual artifact and are regenerated through the normal pipeline rather than applied as post-render substitutions.
+
 ## Failure handling
 
 | Failure | Handling |
@@ -112,3 +121,5 @@ Run every gate before handoff. A report written by the agent is not proof; gener
 | Raster font resolves to an undeclared fallback | Install a declared family or update the style font stack, then rerender; do not sharpen the bitmap |
 | Stale or failed technical review | Inspect the current preview, revise the SVG, rerender, and rebind the review hash |
 | Pack contains a failed diagram | Fail diagram_pack_report; do not present the pack as passed |
+| Proposed fix only works for one page, project, label, id, path, or coordinate set | Reject it as a reusable skill change; express a domain-neutral invariant or keep the repair inside the generated pack |
+| Publishing destination starts changing technical semantics or layout grammar | Remove the destination branch; retain only generic viewport, format, background, or pixel-density constraints |

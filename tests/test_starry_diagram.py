@@ -21,7 +21,11 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from build_check_report import build_check_report  # noqa: E402
-from build_embed_blocks import analyze_pack_visual_identity, build_embed_blocks  # noqa: E402
+from build_embed_blocks import (  # noqa: E402
+    analyze_pack_visual_identity,
+    build_embed_blocks,
+    build_pack_report,
+)
 import font_resolution  # noqa: E402
 from font_resolution import parse_font_stack, validate_font_resolution  # noqa: E402
 from profiles import load_layouts, load_notations, load_profiles  # noqa: E402
@@ -877,7 +881,7 @@ def _v4_flow_lock_with_data_object() -> dict[str, object]:
         {"id": "finish", "label": "Persist", "notation_role": "end"},
         {
             "id": "schema",
-            "label": "city_code VARCHAR(64)",
+            "label": "reference_key VARCHAR(N)",
             "notation_role": "data-object",
         },
     ]
@@ -2245,6 +2249,18 @@ def test_pack_report_rejects_missing_preview_even_with_stale_pass_report(tmp_pat
     report = build_embed_blocks(tmp_path)
     assert report["status"] == "failed"
     assert report["diagrams"][0]["preview"] is None
+
+
+def test_core_pack_report_does_not_create_publication_adapter(tmp_path: Path) -> None:
+    diagram_dir = _write_diagram(tmp_path)
+    build_check_report(diagram_dir)
+    _write_manifest(tmp_path)
+
+    report = build_pack_report(tmp_path)
+
+    assert report["status"] == "passed_with_warnings"
+    assert report["diagrams"][0]["embed"] is None
+    assert not (diagram_dir / "embed.md").exists()
 
 
 def test_manifest_and_pack_report_pass_only_when_lock_contract_matches(tmp_path: Path) -> None:

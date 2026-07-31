@@ -91,7 +91,12 @@ def _manifest_entries(diagrams_root: Path) -> list[dict[str, Any]]:
     return entries
 
 
-def build_embed_for_diagram(root: Path, entry: dict[str, Any]) -> dict[str, Any]:
+def build_embed_for_diagram(
+    root: Path,
+    entry: dict[str, Any],
+    *,
+    write_embed: bool = True,
+) -> dict[str, Any]:
     directory = _diagram_directory(entry)
     diagram_dir = _safe_diagram_dir(root, directory)
     title = _diagram_title(entry)
@@ -183,13 +188,15 @@ def build_embed_for_diagram(root: Path, entry: dict[str, Any]) -> dict[str, Any]
             warnings.append(f"{directory}: delivery.png missing for raster delivery target")
     lines.extend([f"源码：[{source_file}](./{source_file})", ""])
 
-    diagram_dir.mkdir(parents=True, exist_ok=True)
-    (diagram_dir / "embed.md").write_text("\n".join(lines), encoding="utf-8")
+    embed_path = diagram_dir / "embed.md"
+    if write_embed:
+        diagram_dir.mkdir(parents=True, exist_ok=True)
+        embed_path.write_text("\n".join(lines), encoding="utf-8")
 
     return {
         "id": entry.get("id", directory),
         "directory": directory,
-        "embed": str(diagram_dir / "embed.md"),
+        "embed": str(embed_path) if write_embed else None,
         "image": image_file,
         "preview": "preview.png" if preview_png.exists() else None,
         "preview_review_status": review_report["status"],
@@ -259,7 +266,7 @@ def analyze_pack_visual_identity(
     }
 
 
-def build_embed_blocks(diagrams_root: Path) -> dict[str, Any]:
+def _build_pack_report(diagrams_root: Path, *, write_embeds: bool) -> dict[str, Any]:
     manifest_path = diagrams_root / "diagram_manifest.yaml"
     manifest = read_yaml(manifest_path) if manifest_path.exists() else {}
     manifest_report = (
@@ -270,7 +277,10 @@ def build_embed_blocks(diagrams_root: Path) -> dict[str, Any]:
     write_json(diagrams_root / "manifest_report.json", manifest_report)
     entries = _manifest_entries(diagrams_root)
     generated_entries = [entry for entry in entries if entry.get("status") == "generated"]
-    diagrams = [build_embed_for_diagram(diagrams_root, entry) for entry in generated_entries]
+    diagrams = [
+        build_embed_for_diagram(diagrams_root, entry, write_embed=write_embeds)
+        for entry in generated_entries
+    ]
     warnings = list(manifest_report.get("warnings", []))
     warnings.extend(warning for diagram in diagrams for warning in diagram["warnings"])
     failed_diagrams = [
@@ -301,6 +311,16 @@ def build_embed_blocks(diagrams_root: Path) -> dict[str, Any]:
     }
     write_json(diagrams_root / "diagram_pack_report.json", report)
     return report
+
+
+def build_pack_report(diagrams_root: Path) -> dict[str, Any]:
+    """Build core pack validation reports without publication-adapter files."""
+    return _build_pack_report(diagrams_root, write_embeds=False)
+
+
+def build_embed_blocks(diagrams_root: Path) -> dict[str, Any]:
+    """Build the pack report and optional Markdown publication adapters."""
+    return _build_pack_report(diagrams_root, write_embeds=True)
 
 
 def main(argv: list[str] | None = None) -> int:

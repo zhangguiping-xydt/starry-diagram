@@ -2,6 +2,8 @@
 
 Mission: transform source material into a diagram pack plan that is explicit, source-grounded, and safe to execute.
 
+The plan is publishing-platform independent. A destination may supply generic delivery constraints such as viewport dimensions, supported file formats, background behavior, or pixel density, but it must not influence technical semantics, type selection, notation, topology, or routing rules.
+
 Read `../templates/profiles/diagram_profiles.yaml`, `../templates/layouts/technical_layouts.yaml`, and `../templates/notations/technical_notations.yaml` before choosing a viewpoint, renderer, layout, notation, or enhancement level. Evaluate `pick_when`, `skip_when`, and `alternatives` for every plausible type and allowed layout. The selected contracts are executable, not suggestions.
 
 Outputs:
@@ -45,4 +47,4 @@ Apply the selected pattern's section and total-item limits before locking semant
 
 Use `canvas.mode: fixed` when the target dimensions are a real delivery constraint. Make its viewBox exactly `0 0 <width> <height>`. Use `canvas.mode: auto` for topology-driven technical diagrams that should grow with their contents; optionally set max_width, max_height, and margin.
 
-Lock `delivery_target` to the real Wiki, document, web, or export viewport. Do not infer a slide-sized viewport merely because the diagram is wide. Select a preset or author `visual_behavior.mode: custom`, then resolve the pack palette, typography, stroke language, geometry, and connectors into `style_tokens`. The resolved colors, typography, and strokes must exactly match `pack_identity`. The visual gate evaluates the final effective size after the canvas is scaled into the delivery target.
+Lock `delivery_target` to the real consumption viewport. Do not infer a slide-sized viewport merely because the diagram is wide. Select a preset or author `visual_behavior.mode: custom`, then resolve the pack palette, typography, stroke language, geometry, and connectors into `style_tokens`. The resolved colors, typography, and strokes must exactly match `pack_identity`. The visual gate evaluates the final effective size after the canvas is scaled into the delivery target. Never branch the strategy on a publishing product, page title, project name, business field, or known diagram id.

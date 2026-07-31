@@ -7,11 +7,11 @@ description: Use when creating design diagrams, diagram packs, architecture diag
 
 ## Overview
 
-Create trustworthy diagram packs from source material. The semantic source is truth, enhanced SVG is presentation. Every visual output must preserve the semantic contract recorded in locks and reports.
+Create trustworthy, platform-independent technical diagram packs from source material. The semantic source is truth, enhanced SVG is presentation. Every visual output must preserve the semantic contract recorded in locks and reports. Publishing a finished diagram into a Wiki, document, website, slide, or other destination is a downstream use of the diagram, not part of its technical semantics.
 
 ## Mandatory Pipeline
 
-Source intake → Diagram Strategist → type/viewpoint/layout/notation selection and complexity/diversity gate → pack identity and executable per-diagram treatment lock → `diagram_manifest.yaml` → `diagram_spec.md`/`diagram_lock.yaml` → delivery target and typography lock → Semantic track before visual track → type-native semantic grammar and density gate → content-driven visual hierarchy and composition → type-native Visual track → notation/identity/geometry/legibility/composition quality gate → target-size preview → technical visual review and revision loop → optional high-density raster delivery → `embed.md` and reports.
+Source intake → Diagram Strategist → type/viewpoint/layout/notation selection and complexity/diversity gate → pack identity and executable per-diagram treatment lock → `diagram_manifest.yaml` → `diagram_spec.md`/`diagram_lock.yaml` → delivery target and typography lock → Semantic track before visual track → type-native semantic grammar and density gate → content-driven visual hierarchy and composition → type-native Visual track → notation/identity/geometry/legibility/composition quality gate → target-size preview → technical visual review and revision loop → optional high-density raster delivery → diagram and pack reports → optional publication adapters.
 
 Execute every gate with the bundled scripts. A written claim that a gate passed is not sufficient.
 
@@ -22,6 +22,14 @@ When the user does not specify a diagram type, evaluate architecture/business-ar
 ## Fact gate
 
 Do not invent services, roles, fields, relationships, states, calls, events, or cardinalities. If a required fact is absent from source material, mark the diagram as skipped or needs_clarification instead of filling gaps.
+
+## Generalization and platform boundary
+
+The reusable skill owns technical-diagram semantics, notation, layout, rendering, and quality validation. It must not contain destination-specific behavior for knowledge bases, slides, office documents, websites, or any other publishing system. A consumer may constrain only generic delivery facts such as viewport size, supported file format, background behavior, or raster pixel density.
+
+Never add a reusable rule, template branch, renderer branch, or validator exception keyed by a project name, page title, business field, semantic item id, known SVG path, or coordinates from one generated diagram. A systematic fix must be expressible as a diagram-type, notation-role, topology, layout, geometry, typography, or delivery invariant and must be covered by domain-neutral regression fixtures. If it cannot be expressed that way, keep the repair inside that diagram pack's lock, source, or visual artifact; do not promote it into the skill.
+
+Do not use a post-render script that searches for known labels, ids, path strings, or coordinates to reshape a specific output. Regenerate the affected diagram from its semantic lock and the general renderer contract instead.
 
 ## Type profile gate
 
@@ -43,11 +51,11 @@ Run `python scripts/validate_diagram_manifest.py <diagram_manifest.yaml> --root 
 
 ## Required Artifacts
 
-Each generated diagram directory must contain `diagram_spec.md`, `diagram_lock.yaml`, `source.*`, `semantic.svg` or `render_unavailable`, `visual.svg` or `visual_failed`, `preview.png`, `preview_review.yaml`, `embed.md`, and `check_report.json`. When `raster_delivery` is present in the lock, it must also contain `delivery.png`, `delivery_render_report.json`, and `delivery_report.json`. The pack root must contain `diagram_manifest.yaml` and `diagram_pack_report.json`. Diagrams marked `skipped` or `needs_clarification` only require a manifest entry; do not create semantic source, SVG files, or a diagram directory for them unless the user explicitly asks for a diagnostic directory.
+Each generated diagram directory must contain `diagram_spec.md`, `diagram_lock.yaml`, `source.*`, `semantic.svg` or `render_unavailable`, `visual.svg` or `visual_failed`, `preview.png`, `preview_review.yaml`, and `check_report.json`. When `raster_delivery` is present in the lock, it must also contain `delivery.png`, `delivery_render_report.json`, and `delivery_report.json`. The pack root must contain `diagram_manifest.yaml` and `diagram_pack_report.json`. `embed.md` is optional publication-adapter output and is not required for a valid technical diagram pack. Diagrams marked `skipped` or `needs_clarification` only require a manifest entry; do not create semantic source, SVG files, or a diagram directory for them unless the user explicitly asks for a diagnostic directory.
 
 ## Delivery and typography lock
 
-Lock the real embedding viewport before layout. Read `references/delivery-and-legibility.md`, define `delivery_target`, and copy a complete role-based typography scale from the locked pack identity or selected preset. Judge font size, padding, label anchoring, and contrast after scaling the SVG into that viewport.
+Lock the real consumption viewport before layout. Read `references/delivery-and-legibility.md`, define `delivery_target`, and copy a complete role-based typography scale from the locked pack identity or selected preset. Judge font size, padding, label anchoring, and contrast after scaling the SVG into that viewport. Treat the target as a generic size/format contract; do not derive technical semantics, diagram type, topology, or routing style from a publishing platform's identity.
 
 Treat typography as geometry. Keep each role size stable. When text does not fit, expand the node, reflow its lines, recompute neighboring geometry, and reroute downstream edges. Never shrink a role, enlarge the canvas, or hide text to pass the gate.
 
@@ -133,6 +141,8 @@ Only hand off a diagram whose generated `check_report.json` has `status: passed`
 - Reviewing a zoomed SVG instead of the target-size PNG or leaving a stale preview-review hash.
 - Uploading the 1× `preview.png` as the final image on a high-DPI raster-only destination instead of declaring and rendering `raster_delivery`.
 - Trusting the SVG font-family string without verifying which installed font the rasterizer actually resolved.
+- Promoting a one-off artifact repair into the skill by matching a project, page, label, semantic id, SVG path, or fixed coordinate.
+- Changing technical semantics or layout rules for a particular publishing platform instead of keeping publication as an optional adapter.
 - Repeating one viewpoint/layout/notation signature across a pack without evaluating fact-complete alternatives.
 - Writing a persuasive treatment paragraph while rendering the same hierarchy, spacing, and canvas signature as every other diagram.
 - Declaring a decision, datastore, state, boundary, or participant role in metadata while rendering generic card geometry.

@@ -25,6 +25,8 @@ The output is a technical diagram. Read `../templates/notations/technical_notati
 - Replacing a decision, data object, datastore, state marker, boundary, lane, fragment, or lifeline with a generic card.
 - Rendering a return message as a solid call connector or putting text inside an initial/final state pseudo-marker.
 - Sending architecture, flow, state, sequence, ER, deployment, or event diagrams through one generic `svg_node()` or card renderer.
+- Running a case-specific postprocessor that matches known labels, semantic ids, SVG path strings, or coordinates from one diagram.
+- Changing renderer behavior because the output will be published in a particular Wiki, document system, website, or slide deck.
 
 ## Enhancement levels
 
